@@ -12,11 +12,26 @@ defmodule Master do
 
   def init(files, nR, parent) do
 
-    IO.inspect(files, label: "INSPECTING FILES WITHIN Master.init()")
+    IO.inspect(files, label: "INSPECTING FILES WITHIN Master.init()") # my code
+
+    # files_progress = Enum.map(files, fn f -> {
+    #   %{f: [mapped: false, reduced: false]}
+    # end
+    # })
+
+    indexed_files = Enum.with_index(files, fn element, index ->
+      {index, element}
+    end)
+
+    IO.inspect(indexed_files, label: "INDEXED FILES")
 
     state = %{
       parent: parent,
-      files: files
+      indexed_files: indexed_files, # my code
+      nR: nR,
+      mapped_files: %{},
+      reduced_files: %{},
+      busy_workers: %{}
     }
 
     run(state)
@@ -31,12 +46,32 @@ defmodule Master do
           IO.puts("Got idle from worker #{inspect(pid)}: handshake")
           Process.monitor(pid)
 
-          #IO.inspect(state.files, label: "INSPECTING FILES WITHIN Master.run()")
+          # send(pid, {:map, 1, Enum.at(state.files, 0), state.nR})
+          # state
 
-          send(pid, {:map, 1, Enum.at(state.files, 0), 1})
+
+          #========================================================
+
+            IO.inspect(state.indexed_files, label: "INDEXED FILES FROM RUN()")
+            [{index, file} | tail] = state.indexed_files
+
+            IO.puts("INDEX #{index} AND ELEMENT #{file}")
+
+            send(pid, {:map, index, file, state.nR})
+
+            state = %{
+              state
+              | indexed_files: tail,
+                busy_workers: Map.put(state.busy_workers, pid, {:map, index, file})
+            }
+
+            IO.inspect(state.busy_workers, label: "WHAT DOES BUSY WORKERS LOOK LIKE ")
 
 
-          state
+            # filter out the job just sent.
+
+
+            state
 
           # TODO: add your code here
           # Don't forget to return state at the end
@@ -56,6 +91,12 @@ defmodule Master do
         # failed worker
         {:DOWN, _, :process, pid, reason} ->
           IO.puts("worker #{inspect(pid)} is down")
+
+
+          # If worker (pid) is down. we should check what in busy_workers list what file this worker was working on
+          # and add the file back to the indexed_files and assign it to another worker.
+
+
           # TODO: add your code here
           # Don't forget to return state at the end
 

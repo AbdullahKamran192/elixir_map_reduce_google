@@ -47,9 +47,14 @@ defmodule Worker do
           IO.inspect(output, label: "THIS IS MY OUTPUT!!!")
 
 
+          File.write("intermediate_map/map_intermediate_#{n}.txt", "")
+
+          Enum.map(output, fn {k, v} ->
+            File.write!("intermediate_map/map_intermediate_#{n}.txt", "{#{k},#{v}}\n", [:append])
+          end)
 
 
-          File.write("map_intermediate.txt", output)
+          IO.puts("THE FILE HAS BEEN CREATED!!!")
 
 
           # TODO: add your code here
