@@ -12,8 +12,11 @@ defmodule Master do
 
   def init(files, nR, parent) do
 
+    IO.inspect(files, label: "INSPECTING FILES WITHIN Master.init()")
+
     state = %{
-      parent: parent
+      parent: parent,
+      files: files
     }
 
     run(state)
@@ -27,6 +30,14 @@ defmodule Master do
         {:idle, pid} ->
           IO.puts("Got idle from worker #{inspect(pid)}: handshake")
           Process.monitor(pid)
+
+          #IO.inspect(state.files, label: "INSPECTING FILES WITHIN Master.run()")
+
+          send(pid, {:map, 1, Enum.at(state.files, 0), 1})
+
+
+          state
+
           # TODO: add your code here
           # Don't forget to return state at the end
 
