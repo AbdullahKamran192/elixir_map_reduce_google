@@ -1,0 +1,5 @@
+{third,1}
+{file,1}
+{trig,1}
+{triangle,1}
+{truck,1}

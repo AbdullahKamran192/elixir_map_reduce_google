@@ -22,23 +22,10 @@ defmodule Worker do
           IO.inspect(n, label: "n ")
           IO.inspect(nR, label: "nR ")
 
-
-          # map_results = Enum.map(file, fn f ->
-          #   {:ok, result} = File.read(f)
-          #   state.mapf.(f, result)
-          # end)
-
-          # joined_results = Enum.concat(map_results)
-
-
-          # IO.inspect(joined_results, label: "THIS IS MY OUTPUT!!!")
-
-          # joined_results
-
           #======================================================================
 
-            {:ok, result} = File.read(file)
-            output = state.mapf.(file, result)
+          {:ok, result} = File.read(file)
+          output = state.mapf.(file, result)
 
           # output = state.mapf.("",file)
 
@@ -56,9 +43,26 @@ defmodule Worker do
 
           IO.puts("THE FILE HAS BEEN CREATED!!!")
 
+          send(state.master, {:map, self(), n, "intermediate_map/map_intermediate_#{n}.txt"})
+
+          #Process.sleep(3000)
+
+
+          #send(state.master, {:idle, self()}) # Should the worker make sure the work was sent back to the master correctly before telling the master it's idle.
+
+
+          state
+
 
           # TODO: add your code here
           # Don't forget to return state at the end
+
+
+
+
+
+
+
 
 
         # Reduce task from the master

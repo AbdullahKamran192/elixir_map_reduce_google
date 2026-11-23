@@ -46,11 +46,23 @@ defmodule Master do
           IO.puts("Got idle from worker #{inspect(pid)}: handshake")
           Process.monitor(pid)
 
-          # send(pid, {:map, 1, Enum.at(state.files, 0), state.nR})
-          # state
+
+          # REDUCE WORK:
+          # All map tasks must be completed before reduce tasks begin. to do this i will check if indexed_files and busy_workers are empty.
+
+
+          # if length(state.indexed_files) == 0 and length(state.busy_workers) == 0 do
+          #   IO.puts("THIS SHOULD ONLY RUN AT THE END WHEN ALL MAP TASKS ARE COMPLETE!!!!!!")
+          # end
 
 
           #========================================================
+
+
+          # MAP WORK:
+          # Check if files still exist in the indexed_files (meaning there is still unmapped files to be worked)
+
+          if length(state.indexed_files) > 0 do
 
             IO.inspect(state.indexed_files, label: "INDEXED FILES FROM RUN()")
             [{index, file} | tail] = state.indexed_files
@@ -70,15 +82,42 @@ defmodule Master do
 
             # filter out the job just sent.
 
+          end
 
-            state
+          state
 
           # TODO: add your code here
           # Don't forget to return state at the end
 
         # map worker completes
         {:map, pid, n, files} ->
-          IO.puts("Got map task complete from worker #{inspect(pid)}")
+          IO.puts("Got map task complete from worker #{inspect(pid)}, n is #{n}. next inspect the file")
+
+          IO.inspect(files, label: "The received file: ")
+
+
+          {{:map, n, file}, remaining_busy_workers} = Map.pop(state.busy_workers, pid)
+
+          IO.inspect(state.indexed_files, label: "AFTER POPPING: ")
+
+
+          # if file == files do
+
+          # end
+
+          state = %{
+            state
+            | mapped_files: Map.put(state.mapped_files, n, file),
+            busy_workers: remaining_busy_workers
+          }
+
+
+          IO.inspect(state.mapped_files, label: "Mapped files: ")
+          IO.inspect(state.busy_workers, label: "busy_workers updated: ")
+
+
+          state
+
           # TODO: add your code here
           # Don't forget to return state at the end
 
