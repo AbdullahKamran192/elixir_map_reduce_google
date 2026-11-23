@@ -45,10 +45,10 @@ defmodule Worker do
 
           send(state.master, {:map, self(), n, "intermediate_map/map_intermediate_#{n}.txt"})
 
-          #Process.sleep(3000)
+          Process.sleep(3000)
 
 
-          #send(state.master, {:idle, self()}) # Should the worker make sure the work was sent back to the master correctly before telling the master it's idle.
+          send(state.master, {:idle, self()}) # Should the worker make sure the work was sent back to the master correctly before telling the master it's idle.
 
 
           state

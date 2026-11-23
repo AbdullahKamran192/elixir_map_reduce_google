@@ -51,9 +51,9 @@ defmodule Master do
           # All map tasks must be completed before reduce tasks begin. to do this i will check if indexed_files and busy_workers are empty.
 
 
-          # if length(state.indexed_files) == 0 and length(state.busy_workers) == 0 do
-          #   IO.puts("THIS SHOULD ONLY RUN AT THE END WHEN ALL MAP TASKS ARE COMPLETE!!!!!!")
-          # end
+          if length(state.indexed_files) == 0 and map_size(state.busy_workers) == 0 do
+            IO.puts("THIS SHOULD ONLY RUN AT THE END WHEN ALL MAP TASKS ARE COMPLETE!!!!!!")
+          end
 
 
           #========================================================
@@ -62,7 +62,8 @@ defmodule Master do
           # MAP WORK:
           # Check if files still exist in the indexed_files (meaning there is still unmapped files to be worked)
 
-          if length(state.indexed_files) > 0 do
+          state =
+            if length(state.indexed_files) > 0 do
 
             IO.inspect(state.indexed_files, label: "INDEXED FILES FROM RUN()")
             [{index, file} | tail] = state.indexed_files
@@ -79,9 +80,10 @@ defmodule Master do
 
             IO.inspect(state.busy_workers, label: "WHAT DOES BUSY WORKERS LOOK LIKE ")
 
+            state
 
-            # filter out the job just sent.
-
+          else
+            state
           end
 
           state
