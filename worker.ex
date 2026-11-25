@@ -42,10 +42,16 @@ defmodule Worker do
           files_worked = Enum.reduce(sorted_output, %{}, fn {k,v}, acc ->
             reduce_n = state.hash.(k, nR)
 
+            clear_or_append_file = if Map.has_key?(acc, reduce_n) do
+              :append
+            else
+              :write
+            end
+
             File.write!(
               "intermediate_map/map_intermediate_#{n}_#{reduce_n}_#{formatted_worker_pid}.txt",
               inspect({reduce_n, {k,v}}, printable_limit: :infinity) <> "\n",
-              [:append, create_parents: true]
+              [clear_or_append_file, create_parents: true]
             )
 
             Map.put(acc, reduce_n, "intermediate_map/map_intermediate_#{n}_#{reduce_n}_#{formatted_worker_pid}.txt")
@@ -56,9 +62,9 @@ defmodule Worker do
 
           IO.inspect(files_worked, label: "THESE FILES WRITTEN TO: ")
 
-          if n == 1 do
-            raise("oops")
-          end
+          # if n == 1 do
+          #   raise("oops")
+          # end
 
 
           send(state.master, {:map, self(), n, files_worked})
