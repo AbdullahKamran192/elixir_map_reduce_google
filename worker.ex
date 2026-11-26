@@ -66,10 +66,12 @@ defmodule Worker do
           #   raise("oops")
           # end
 
+          if n == 1 do
+            Process.sleep(6000)
+          end
 
           send(state.master, {:map, self(), n, files_worked})
 
-          Process.sleep(3000)
 
           # Should the worker make sure the work was sent back to the master correctly before telling the master it's idle.
           send(state.master, {:idle, self()})
