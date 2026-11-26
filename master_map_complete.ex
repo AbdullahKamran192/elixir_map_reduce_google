@@ -10,12 +10,20 @@ defmodule MasterMapComplete do
 
     state =
       if not file_already_completed do
-        # This is the first worker to complete the file(split). Add the split file to mapped_files.
+        # This is the first worker to complete the file(split).
+
+        #Append the received files to the reduce_n_files. where the reduce_n keys match up.
+
+        updated_reduce_n_files = Map.merge(state.reduce_n_files, files, fn _k, v1, v2 ->
+          v1 ++ v2
+        end)
+
         %{
           state
-          | mapped_files: Map.put(state.mapped_files, n, file),
-            busy_workers: remaining_busy_workers,
-            idle_workers: [pid | state.idle_workers]
+          | mapped_files: Map.put(state.mapped_files, n, file), # Add the split file to mapped_files.
+            busy_workers: remaining_busy_workers, # removed this worker from busy_workers
+            idle_workers: [pid | state.idle_workers], # Added this worker back to the idle_workers.
+            reduce_n_files: updated_reduce_n_files
         }
       else
         # This file is already completed by earlier worker. Received Duplicate.
@@ -27,10 +35,12 @@ defmodule MasterMapComplete do
         }
       end
 
-    IO.inspect(state.indexed_files, label: "AFTER POPPING: ")
+    # IO.inspect(state.indexed_files, label: "AFTER POPPING: ")
 
-    IO.inspect(state.mapped_files, label: "Mapped files: ")
-    IO.inspect(state.busy_workers, label: "busy_workers updated: ")
+    # IO.inspect(state.mapped_files, label: "Mapped files: ")
+    # IO.inspect(state.busy_workers, label: "busy_workers updated: ")
+
+    IO.inspect(state.idle_workers, label: "IDLE WORKERS AFTER COMPLETE: ")
 
     state
   end

@@ -17,7 +17,8 @@ defmodule MasterStraggler do
 
           %{
             state
-            | busy_workers: Map.put(state.busy_workers, idle_worker, {:map, index, file})
+            | busy_workers: Map.put(state.busy_workers, idle_worker, {:map, index, file}),
+            idle_workers: remaining_idle_workers
           }
         else
           # No available idle workers. Add file back to the front of indexed_files to be processed by next available worker.

@@ -20,6 +20,8 @@ defmodule Master do
 
     IO.inspect(indexed_files, label: "INDEXED FILES")
 
+    list_to_nR = for n <- 0..nR - 1, do: n
+
     state = %{
       parent: parent,
       indexed_files: indexed_files,
@@ -29,7 +31,8 @@ defmodule Master do
       reduced_files: %{},
       busy_workers: %{},
       monitored_workers: %{},
-      idle_workers: []
+      idle_workers: [],
+      reduce_n_files: Map.from_keys(list_to_nR, [])
     }
 
     run(state)
@@ -48,7 +51,7 @@ defmodule Master do
 
         # reduce worker completes
         {:reduce, pid, n, file} ->
-          MasterReduce.handle(state, pid, n, file)
+          MasterReduceComplete.handle(state, pid, n, file)
 
         # failed worker
         {:DOWN, _, :process, pid, reason} ->
